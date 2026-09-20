@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Instagram-style Login</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fafafa;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  .card {
+    width: 350px;
+    background: #fff;
+    border: 1px solid #dbdbdb;
+    border-radius: 1px;
+    padding: 44px 40px 20px;
+    text-align: center;
+  }
+  .logo {
+    font-family: "Brush Script MT", cursive;
+    font-size: 42px;
+    margin: 10px 0 24px;
+    color: #262626;
+  }
+  input {
+    width: 100%;
+    padding: 9px 8px;
+    margin-bottom: 6px;
+    border: 1px solid #dbdbdb;
+    border-radius: 3px;
+    background: #fafafa;
+    font-size: 14px;
+  }
+  input:focus { outline: none; border-color: #a8a8a8; }
+  button {
+    width: 100%;
+    margin-top: 8px;
+    padding: 8px;
+    background: #0095f6;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  button:disabled { opacity: 0.6; cursor: default; }
+  .divider {
+    display: flex;
+    align-items: center;
+    margin: 18px 0;
+    color: #8e8e8e;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .divider::before, .divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #dbdbdb;
+  }
+  .divider::before { margin-right: 18px; }
+  .divider::after { margin-left: 18px; }
+  .fb-login {
+    color: #385185;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .forgot {
+    margin-top: 12px;
+    font-size: 12px;
+    color: #00376b;
+    cursor: pointer;
+  }
+  .signup-card {
+    width: 350px;
+    background: #fff;
+    border: 1px solid #dbdbdb;
+    margin-top: 10px;
+    padding: 18px;
+    text-align: center;
+    font-size: 14px;
+  }
+  .signup-card span { color: #0095f6; font-weight: 600; cursor: pointer; }
+  .note {
+    max-width: 350px;
+    margin-top: 18px;
+    font-size: 12px;
+    color: #8e8e8e;
+    text-align: center;
+  }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+  <!-- ================= LOGIN VIEW ================= -->
+  <div id="loginView">
+    <div class="card">
+      <div class="logo">Instagram</div>
+      <form id="loginForm" autocomplete="off">
+       <input type="text" id="loginEmail" placeholder="Phone number, username, or email" required />
+        <input type="password" id="loginPassword" placeholder="Password" required />
+        <button type="submit">Log in</button>
+      </form>
+      <div class="divider">OR</div>
+      <div class="forgot">Forgot password?</div>
+    </div>
+    <div class="signup-card">
+      Don't have an account? <span onclick="showSignup()">Sign up</span>
+    </div>
+  </div>
+
+  <!-- ================= SIGNUP VIEW ================= -->
+  <div id="signupView" class="hidden">
+    <div class="card">
+      <div class="logo">Instagram</div>
+      <form id="signupForm" autocomplete="off">
+        <input type="text" id="signupName" placeholder="Full Name" required />
+       <input type="text" id="signupEmail" placeholder="Email or username" required />
+        <input type="password" id="signupPassword" placeholder="Password" required />
+        <button type="submit">Sign up</button>
+      </form>
+    </div>
+    <div class="signup-card">
+      Have an account? <span onclick="showLogin()">Log in</span>
+    </div>
+  </div>
+
+  <script>
+    const API = "http://localhost:5000/api";
+
+    function showSignup() {
+      document.getElementById("loginView").classList.add("hidden");
+      document.getElementById("signupView").classList.remove("hidden");
+    }
+    function showLogin() {
+      document.getElementById("signupView").classList.add("hidden");
+      document.getElementById("loginView").classList.remove("hidden");
+    }
+
+    document.getElementById("loginForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value;
+
+      try {
+        const res = await fetch(`${API}/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
+        const data = await res.json();
+        if (!res.ok) return alert(data.message);
+
+        localStorage.setItem("token", data.token);
+        alert("Login successful! Welcome " + data.user.name);
+      } catch (err) {
+        alert("Server se connect nahi ho paya. Backend chal raha hai?");
+      }
+    });
+
+    document.getElementById("signupForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const name = document.getElementById("signupName").value.trim();
+      const email = document.getElementById("signupEmail").value.trim();
+      const password = document.getElementById("signupPassword").value;
+
+      try {
+        const res = await fetch(`${API}/signup`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email, password }),
+        });
+        const data = await res.json();
+        if (!res.ok) return alert(data.message);
+
+        localStorage.setItem("token", data.token);
+        alert("Signup successful! Welcome " + data.user.name);
+        showLogin();
+      } catch (err) {
+        
+      }
+    });
+  </script>
+</body>
+</html>
