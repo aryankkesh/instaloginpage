@@ -24,4 +24,5 @@ Instagram-style signup/login page with a Node.js backend.
    JWT_SECRET=your_secret_key
 4. Start the server
    node server.js
-5. Open http://localhost:3000 in your browser
+5. git clone https://github.com/aryankkesh/instaloginpage.git
+cd instaloginpage
